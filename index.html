@@ -3,28 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TKD REMOTE - GITHUB</title>
+    <title>TKD REMOTE FINAL</title>
     <style>
         :root { --blue: #0055ff; --red: #ff1100; --gold: #ffcc00; --bg: #000; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation; }
-        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; overflow: hidden; height: 100vh; }
+        body { background: var(--bg); color: #fff; font-family: "Segoe UI", sans-serif; margin: 0; overflow: hidden; height: 100vh; width: 100vw; }
 
-        /* Màn hình nhập mã kết nối */
+        /* Màn hình nhập mã ban đầu */
         #setup-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: #000; z-index: 9999; display: flex; flex-direction: column; 
-            justify-content: center; align-items: center;
+            justify-content: center; align-items: center; padding: 20px;
         }
         #setup-screen input { 
-            width: 80%; padding: 15px; font-size: 20px; text-align: center; 
+            width: 90%; max-width: 300px; padding: 15px; font-size: 20px; text-align: center; 
             border-radius: 10px; border: 2px solid var(--gold); background: #222; color: #fff; margin-bottom: 20px;
         }
         #setup-screen button { 
-            padding: 15px 40px; background: var(--gold); border: none; 
-            border-radius: 10px; font-weight: bold; font-size: 18px; cursor: pointer;
+            padding: 15px 50px; background: var(--gold); border: none; 
+            border-radius: 10px; font-weight: bold; font-size: 18px; color: #000;
         }
 
-        /* Bố cục điều khiển */
+        /* Giao diện chính - Ẩn đi cho đến khi kết nối */
         .container { display: grid; grid-template-columns: 1fr 120px 1fr; height: 100vh; visibility: hidden; }
         .side-col { position: relative; height: 100vh; }
         .center-col { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px; }
@@ -33,10 +33,12 @@
             border: none; border-radius: 50%; color: #fff; font-weight: 900;
             display: flex; align-items: center; justify-content: center;
             box-shadow: 0 5px 15px rgba(0,0,0,0.7); position: absolute;
+            transition: background 0.1s, transform 0.05s;
         }
-        .btn-circle:active { background: #444 !important; transform: scale(0.9); }
+        /* Hiệu ứng phản hồi khi chạm */
+        .btn-circle:active { background: #555 !important; transform: scale(0.9); }
 
-        /* Tọa độ các phím bấm */
+        /* Tọa độ nút bấm theo bố cục của ông */
         .pos-4, .pos-6 { top: 5vh; width: 75px; height: 75px; background: #1a1a1a; border: 2.5px solid; }
         .pos-3 { top: 28vh; width: 110px; height: 110px; font-size: 2.5rem; }
         .pos-2 { top: 52vh; width: 115px; height: 115px; font-size: 2.8rem; }
@@ -64,30 +66,31 @@
 <body>
 
 <div id="setup-screen">
-    <h2 style="color:var(--gold)">NHẬP MÃ KẾT NỐI</h2>
-    <input type="text" id="peerIdInput" placeholder="Ví dụ: husi-tkd-123">
-    <button onclick="connectNow()">KẾT NỐI NGAY</button>
+    <h2 style="color:var(--gold); margin-bottom: 10px;">TKD REMOTE</h2>
+    <p style="color: #888; margin-bottom: 20px;">Nhập mã ID từ máy tính</p>
+    <input type="text" id="targetId" placeholder="Ví dụ: husi-tkd-123">
+    <button onclick="startConnection()">KẾT NỐI</button>
 </div>
 
 <div class="container" id="main-ui">
     <div class="side-col red-side">
-        <button class="btn-circle pos-4" onclick="sendData('r',4)">+4</button>
-        <button class="btn-circle pos-6" onclick="sendData('r',6)">+6</button>
-        <button class="btn-circle pos-3" onclick="sendData('r',3)">+3</button>
-        <button class="btn-circle pos-2" onclick="sendData('r',2)">+2</button>
-        <button class="btn-circle pos-1" onclick="sendData('r',1)">+1</button>
+        <button class="btn-circle pos-4" onclick="handleSend('r',4)">+4</button>
+        <button class="btn-circle pos-6" onclick="handleSend('r',6)">+6</button>
+        <button class="btn-circle pos-3" onclick="handleSend('r',3)">+3</button>
+        <button class="btn-circle pos-2" onclick="handleSend('r',2)">+2</button>
+        <button class="btn-circle pos-1" onclick="handleSend('r',1)">+1</button>
     </div>
     <div class="center-col">
-        <button class="btn-ctrl start" id="btnS" onclick="sendToggle()">BẮT ĐẦU</button>
-        <button class="btn-ctrl fault f-red" onclick="sendFault('r')">LỖI ĐỎ</button>
-        <button class="btn-ctrl fault f-blue" onclick="sendFault('b')">LỖI XANH</button>
+        <button class="btn-ctrl start" id="btnS" onclick="handleToggle()">BẮT ĐẦU</button>
+        <button class="btn-ctrl fault f-red" onclick="handleFault('r')">LỖI ĐỎ</button>
+        <button class="btn-ctrl fault f-blue" onclick="handleFault('b')">LỖI XANH</button>
     </div>
     <div class="side-col blue-side">
-        <button class="btn-circle pos-4" onclick="sendData('b',4)">+4</button>
-        <button class="btn-circle pos-6" onclick="sendData('b',6)">+6</button>
-        <button class="btn-circle pos-3" onclick="sendData('b',3)">+3</button>
-        <button class="btn-circle pos-2" onclick="sendData('b',2)">+2</button>
-        <button class="btn-circle pos-1" onclick="sendData('b',1)">+1</button>
+        <button class="btn-circle pos-4" onclick="handleSend('b',4)">+4</button>
+        <button class="btn-circle pos-6" onclick="handleSend('b',6)">+6</button>
+        <button class="btn-circle pos-3" onclick="handleSend('b',3)">+3</button>
+        <button class="btn-circle pos-2" onclick="handleSend('b',2)">+2</button>
+        <button class="btn-circle pos-1" onclick="handleSend('b',1)">+1</button>
     </div>
 </div>
 
@@ -96,34 +99,52 @@
     const peer = new Peer();
     let conn;
 
-    function connectNow() {
-        const id = document.getElementById('peerIdInput').value;
-        if(!id) return alert("Nhập mã đi ông!");
-        
-        conn = peer.connect(id);
+    // Hàm kết nối chính
+    function startConnection() {
+        const id = document.getElementById('targetId').value.trim();
+        if(!id) return alert("Chưa nhập mã kìa!");
+
+        conn = peer.connect(id, { reliable: true });
+
         conn.on('open', () => {
             document.getElementById('setup-screen').style.display = 'none';
             document.getElementById('main-ui').style.visibility = 'visible';
-            alert("KẾT NỐI THÀNH CÔNG!");
+            if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            alert("ĐÃ KẾT NỐI!");
         });
-        conn.on('error', (err) => alert("Lỗi: " + err));
+
+        conn.on('error', (err) => {
+            alert("Lỗi kết nối: " + err.type);
+        });
     }
 
-    function sendData(side, pts) {
+    // Gửi điểm
+    function handleSend(side, pts) {
         if(navigator.vibrate) navigator.vibrate(40);
-        if(conn && conn.open) conn.send({ type: 'score', side: side, pts: pts });
+        if(conn && conn.open) {
+            conn.send({ type: 'score', side: side, pts: pts });
+        }
     }
 
-    function sendToggle() {
-        if(conn && conn.open) conn.send({ type: 'control', action: 'toggle' });
-        let b = document.getElementById('btnS');
-        b.innerText = b.innerText === "BẮT ĐẦU" ? "DỪNG" : "BẮT ĐẦU";
-        b.style.background = b.innerText === "DỪNG" ? "orange" : "#28a745";
+    // Điều khiển Bắt đầu/Dừng
+    function handleToggle() {
+        if(conn && conn.open) {
+            conn.send({ type: 'control', action: 'toggle' });
+            let b = document.getElementById('btnS');
+            if(b.innerText === "BẮT ĐẦU") {
+                b.innerText = "DỪNG"; b.style.background = "orange";
+            } else {
+                b.innerText = "BẮT ĐẦU"; b.style.background = "#28a745";
+            }
+        }
     }
 
-    function sendFault(side) {
+    // Gửi lỗi
+    function handleFault(side) {
         if(navigator.vibrate) navigator.vibrate([60, 40, 60]);
-        if(conn && conn.open) conn.send({ type: 'fault', side: side });
+        if(conn && conn.open) {
+            conn.send({ type: 'fault', side: side });
+        }
     }
 </script>
 </body>
