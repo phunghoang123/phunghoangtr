@@ -3,22 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TKD REMOTE FINAL</title>
+    <title>TKD REMOTE - GITHUB</title>
     <style>
         :root { --blue: #0055ff; --red: #ff1100; --gold: #ffcc00; --bg: #000; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation; }
         body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; overflow: hidden; height: 100vh; }
 
-        /* Bảng nhập mã - Hiện lên đầu tiên */
-        #setup-layer {
+        /* Màn hình nhập mã kết nối */
+        #setup-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.95); z-index: 9999; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: #000; z-index: 9999; display: flex; flex-direction: column; 
+            justify-content: center; align-items: center;
         }
-        #setup-layer input { padding: 15px; width: 80%; font-size: 20px; border-radius: 10px; border: none; margin-bottom: 20px; text-align: center; }
-        #setup-layer button { padding: 15px 40px; background: var(--gold); border: none; border-radius: 10px; font-weight: bold; font-size: 18px; color: #000; }
+        #setup-screen input { 
+            width: 80%; padding: 15px; font-size: 20px; text-align: center; 
+            border-radius: 10px; border: 2px solid var(--gold); background: #222; color: #fff; margin-bottom: 20px;
+        }
+        #setup-screen button { 
+            padding: 15px 40px; background: var(--gold); border: none; 
+            border-radius: 10px; font-weight: bold; font-size: 18px; cursor: pointer;
+        }
 
-        .container { display: grid; grid-template-columns: 1fr 120px 1fr; height: 100vh; }
+        /* Bố cục điều khiển */
+        .container { display: grid; grid-template-columns: 1fr 120px 1fr; height: 100vh; visibility: hidden; }
         .side-col { position: relative; height: 100vh; }
         .center-col { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px; }
 
@@ -27,11 +34,10 @@
             display: flex; align-items: center; justify-content: center;
             box-shadow: 0 5px 15px rgba(0,0,0,0.7); position: absolute;
         }
-        /* Hiệu ứng nhấn nút - Quan trọng để biết là đã nhấn */
-        .btn-circle:active { background: #555 !important; transform: scale(0.9); }
+        .btn-circle:active { background: #444 !important; transform: scale(0.9); }
 
-        .pos-4 { top: 5vh; width: 75px; height: 75px; background: #1a1a1a; border: 2.5px solid; }
-        .pos-6 { top: 5vh; width: 75px; height: 75px; background: #1a1a1a; border: 2.5px solid; }
+        /* Tọa độ các phím bấm */
+        .pos-4, .pos-6 { top: 5vh; width: 75px; height: 75px; background: #1a1a1a; border: 2.5px solid; }
         .pos-3 { top: 28vh; width: 110px; height: 110px; font-size: 2.5rem; }
         .pos-2 { top: 52vh; width: 115px; height: 115px; font-size: 2.8rem; }
         .pos-1 { bottom: 10vh; width: 80px; height: 80px; font-size: 1.6rem; }
@@ -57,31 +63,31 @@
 </head>
 <body>
 
-<div id="setup-layer">
-    <h2 style="color:var(--gold)">KẾT NỐI ĐIỀU KHIỂN</h2>
-    <input type="text" id="idInput" placeholder="Nhập mã từ máy tính...">
-    <button onclick="ketNoi()">KẾT NỐI</button>
+<div id="setup-screen">
+    <h2 style="color:var(--gold)">NHẬP MÃ KẾT NỐI</h2>
+    <input type="text" id="peerIdInput" placeholder="Ví dụ: husi-tkd-123">
+    <button onclick="connectNow()">KẾT NỐI NGAY</button>
 </div>
 
-<div class="container">
+<div class="container" id="main-ui">
     <div class="side-col red-side">
-        <button class="btn-circle pos-4" onclick="bamDiem('r',4)">+4</button>
-        <button class="btn-circle pos-6" onclick="bamDiem('r',6)">+6</button>
-        <button class="btn-circle pos-3" onclick="bamDiem('r',3)">+3</button>
-        <button class="btn-circle pos-2" onclick="bamDiem('r',2)">+2</button>
-        <button class="btn-circle pos-1" onclick="bamDiem('r',1)">+1</button>
+        <button class="btn-circle pos-4" onclick="sendData('r',4)">+4</button>
+        <button class="btn-circle pos-6" onclick="sendData('r',6)">+6</button>
+        <button class="btn-circle pos-3" onclick="sendData('r',3)">+3</button>
+        <button class="btn-circle pos-2" onclick="sendData('r',2)">+2</button>
+        <button class="btn-circle pos-1" onclick="sendData('r',1)">+1</button>
     </div>
     <div class="center-col">
-        <button class="btn-ctrl start" id="btnS" onclick="bamChay()">BẮT ĐẦU</button>
-        <button class="btn-ctrl fault f-red" onclick="bamLoi('r')">LỖI ĐỎ</button>
-        <button class="btn-ctrl fault f-blue" onclick="bamLoi('b')">LỖI XANH</button>
+        <button class="btn-ctrl start" id="btnS" onclick="sendToggle()">BẮT ĐẦU</button>
+        <button class="btn-ctrl fault f-red" onclick="sendFault('r')">LỖI ĐỎ</button>
+        <button class="btn-ctrl fault f-blue" onclick="sendFault('b')">LỖI XANH</button>
     </div>
     <div class="side-col blue-side">
-        <button class="btn-circle pos-4" onclick="bamDiem('b',4)">+4</button>
-        <button class="btn-circle pos-6" onclick="bamDiem('b',6)">+6</button>
-        <button class="btn-circle pos-3" onclick="bamDiem('b',3)">+3</button>
-        <button class="btn-circle pos-2" onclick="bamDiem('b',2)">+2</button>
-        <button class="btn-circle pos-1" onclick="bamDiem('b',1)">+1</button>
+        <button class="btn-circle pos-4" onclick="sendData('b',4)">+4</button>
+        <button class="btn-circle pos-6" onclick="sendData('b',6)">+6</button>
+        <button class="btn-circle pos-3" onclick="sendData('b',3)">+3</button>
+        <button class="btn-circle pos-2" onclick="sendData('b',2)">+2</button>
+        <button class="btn-circle pos-1" onclick="sendData('b',1)">+1</button>
     </div>
 </div>
 
@@ -90,35 +96,37 @@
     const peer = new Peer();
     let conn;
 
-    function ketNoi() {
-        const id = document.getElementById('idInput').value;
-        if(!id) return alert("Chưa nhập mã kìa ông!");
+    function connectNow() {
+        const id = document.getElementById('peerIdInput').value;
+        if(!id) return alert("Nhập mã đi ông!");
         
         conn = peer.connect(id);
         conn.on('open', () => {
-            document.getElementById('setup-layer').style.display = 'none';
-            alert("ĐÃ KẾT NỐI!");
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('main-ui').style.visibility = 'visible';
+            alert("KẾT NỐI THÀNH CÔNG!");
         });
         conn.on('error', (err) => alert("Lỗi: " + err));
     }
 
-    function bamDiem(side, pts) {
+    function sendData(side, pts) {
         if(navigator.vibrate) navigator.vibrate(40);
         if(conn && conn.open) conn.send({ type: 'score', side: side, pts: pts });
     }
 
-    function bamChay() {
+    function sendToggle() {
         if(conn && conn.open) conn.send({ type: 'control', action: 'toggle' });
         let b = document.getElementById('btnS');
         b.innerText = b.innerText === "BẮT ĐẦU" ? "DỪNG" : "BẮT ĐẦU";
         b.style.background = b.innerText === "DỪNG" ? "orange" : "#28a745";
     }
 
-    function bamLoi(side) {
+    function sendFault(side) {
         if(navigator.vibrate) navigator.vibrate([60, 40, 60]);
         if(conn && conn.open) conn.send({ type: 'fault', side: side });
     }
 </script>
 </body>
 </html>
+
 
