@@ -3,27 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TKD REMOTE FINAL</title>
+    <title>TKD REMOTE - GIỮ NGUYÊN BỐ CỤC</title>
     <style>
         :root { --blue: #0055ff; --red: #ff1100; --gold: #ffcc00; --bg: #000; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation; }
-        body { background: var(--bg); color: #fff; font-family: "Segoe UI", sans-serif; margin: 0; overflow: hidden; height: 100vh; }
+        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; overflow: hidden; height: 100vh; }
 
-        /* Màn hình nhập mã */
-        #setup-screen {
+        /* Màn hình nhập mã - iPhone không chặn cái này */
+        #setup-layer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #000; z-index: 9999; display: flex; flex-direction: column; 
+            background: #000; z-index: 10000; display: flex; flex-direction: column; 
             justify-content: center; align-items: center;
         }
-        #setup-screen input { 
-            width: 85%; padding: 15px; font-size: 20px; text-align: center; 
+        #setup-layer input { 
+            width: 80%; padding: 15px; font-size: 20px; text-align: center; 
             border-radius: 10px; border: 2px solid var(--gold); background: #222; color: #fff; margin-bottom: 20px;
         }
-        #setup-screen button { 
-            padding: 15px 50px; background: var(--gold); border: none; border-radius: 10px; font-weight: bold; font-size: 18px;
+        #setup-layer button { 
+            padding: 15px 40px; background: var(--gold); border: none; border-radius: 10px; font-weight: bold; font-size: 18px;
         }
 
-        /* Giao diện chính */
+        /* Bố cục của ông (Giữ nguyên tọa độ) */
         .container { display: grid; grid-template-columns: 1fr 120px 1fr; height: 100vh; visibility: hidden; }
         .side-col { position: relative; }
         .center-col { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px; }
@@ -32,10 +32,11 @@
             border: none; border-radius: 50%; color: #fff; font-weight: 900;
             display: flex; align-items: center; justify-content: center;
             box-shadow: 0 5px 15px rgba(0,0,0,0.7); position: absolute;
+            transition: transform 0.05s;
         }
-        .btn-circle:active { background: #444 !important; transform: scale(0.9); }
+        /* Hiệu ứng nháy khi bấm cho ông biết nút có ăn hay không */
+        .btn-circle:active { background: #fff !important; color: #000 !important; transform: scale(0.9); }
 
-        /* Tọa độ nút chuẩn iPhone 11 Pro Max của ông */
         .pos-4, .pos-6 { top: 5vh; width: 75px; height: 75px; background: #1a1a1a; border: 2.5px solid; }
         .pos-3 { top: 28vh; width: 110px; height: 110px; font-size: 2.5rem; }
         .pos-2 { top: 52vh; width: 115px; height: 115px; font-size: 2.8rem; }
@@ -62,31 +63,31 @@
 </head>
 <body>
 
-<div id="setup-screen">
-    <h2 style="color:var(--gold)">NHẬP MÃ KẾT NỐI</h2>
-    <input type="text" id="targetID" placeholder="Ví dụ: husi-tkd-968">
-    <button onclick="startConn()">KẾT NỐI NGAY</button>
+<div id="setup-layer">
+    <h2 style="color:var(--gold)">KẾT NỐI BẢNG ĐIỂM</h2>
+    <input type="text" id="idVao" placeholder="Nhập mã ID từ máy tính...">
+    <button onclick="start()">KẾT NỐI</button>
 </div>
 
 <div class="container" id="main-ui">
     <div class="side-col red-side">
-        <button class="btn-circle pos-4" onclick="p('r',4)">+4</button>
-        <button class="btn-circle pos-6" onclick="p('r',6)">+6</button>
-        <button class="btn-circle pos-3" onclick="p('r',3)">+3</button>
-        <button class="btn-circle pos-2" onclick="p('r',2)">+2</button>
-        <button class="btn-circle pos-1" onclick="p('r',1)">+1</button>
+        <button class="btn-circle pos-4" onclick="sd('r',4)">+4</button>
+        <button class="btn-circle pos-6" onclick="sd('r',6)">+6</button>
+        <button class="btn-circle pos-3" onclick="sd('r',3)">+3</button>
+        <button class="btn-circle pos-2" onclick="sd('r',2)">+2</button>
+        <button class="btn-circle pos-1" onclick="sd('r',1)">+1</button>
     </div>
     <div class="center-col">
-        <button class="btn-ctrl start" id="btnS" onclick="tgl()">BẮT ĐẦU</button>
-        <button class="btn-ctrl fault f-red" onclick="f('r')">LỖI ĐỎ</button>
-        <button class="btn-ctrl fault f-blue" onclick="f('b')">LỖI XANH</button>
+        <button class="btn-ctrl start" id="btnS" onclick="st()">BẮT ĐẦU</button>
+        <button class="btn-ctrl fault f-red" onclick="sf('r')">LỖI ĐỎ</button>
+        <button class="btn-ctrl fault f-blue" onclick="sf('b')">LỖI XANH</button>
     </div>
     <div class="side-col blue-side">
-        <button class="btn-circle pos-4" onclick="p('b',4)">+4</button>
-        <button class="btn-circle pos-6" onclick="p('b',6)">+6</button>
-        <button class="btn-circle pos-3" onclick="p('b',3)">+3</button>
-        <button class="btn-circle pos-2" onclick="p('b',2)">+2</button>
-        <button class="btn-circle pos-1" onclick="p('b',1)">+1</button>
+        <button class="btn-circle pos-4" onclick="sd('b',4)">+4</button>
+        <button class="btn-circle pos-6" onclick="sd('b',6)">+6</button>
+        <button class="btn-circle pos-3" onclick="sd('b',3)">+3</button>
+        <button class="btn-circle pos-2" onclick="sd('b',2)">+2</button>
+        <button class="btn-circle pos-1" onclick="sd('b',1)">+1</button>
     </div>
 </div>
 
@@ -95,37 +96,34 @@
     const peer = new Peer();
     let conn;
 
-    function startConn() {
-        const id = document.getElementById('targetID').value.trim();
-        if(!id) return alert("Nhập mã ông ơi!");
+    function start() {
+        const id = document.getElementById('idVao').value.trim();
+        if(!id) return alert("Chưa nhập mã!");
         
-        conn = peer.connect(id);
+        conn = peer.connect(id, { reliable: true });
         conn.on('open', () => {
-            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('setup-layer').style.display = 'none';
             document.getElementById('main-ui').style.visibility = 'visible';
             alert("ĐÃ KẾT NỐI!");
         });
-        conn.on('error', (err) => alert("Lỗi kết nối: " + err));
+        conn.on('error', (err) => alert("Lỗi: Không tìm thấy máy tính!"));
     }
 
-    function p(side, pts) {
-        if(navigator.vibrate) navigator.vibrate(40);
-        if(conn && conn.open) conn.send({ type: 'score', side: side, pts: pts });
+    function sd(s, p) {
+        if(conn && conn.open) conn.send({ type: 'score', side: s, pts: p });
     }
 
-    function tgl() {
+    function st() {
         if(conn && conn.open) conn.send({ type: 'control', action: 'toggle' });
         let b = document.getElementById('btnS');
         b.innerText = b.innerText === "BẮT ĐẦU" ? "DỪNG" : "BẮT ĐẦU";
         b.style.background = b.innerText === "DỪNG" ? "orange" : "#28a745";
     }
 
-    function f(side) {
-        if(navigator.vibrate) navigator.vibrate([60, 40, 60]);
-        if(conn && conn.open) conn.send({ type: 'fault', side: side });
+    function sf(s) {
+        if(conn && conn.open) conn.send({ type: 'fault', side: s });
     }
 </script>
 </body>
 </html>
-
 
