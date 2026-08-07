@@ -1,129 +1,136 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TKD REMOTE - GIỮ NGUYÊN BỐ CỤC</title>
-    <style>
-        :root { --blue: #0055ff; --red: #ff1100; --gold: #ffcc00; --bg: #000; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation; }
-        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; overflow: hidden; height: 100vh; }
+<meta charset="UTF-8">
+<title>System Loading...</title>
+<style>
+*{
+    margin:0;
+    padding:0;
+    overflow:hidden;
+}
+body{
+    background:#000;
+    font-family:Consolas,monospace;
+}
+canvas{
+    position:fixed;
+    top:0;
+    left:0;
+}
 
-        /* Màn hình nhập mã - iPhone không chặn cái này */
-        #setup-layer {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #000; z-index: 10000; display: flex; flex-direction: column; 
-            justify-content: center; align-items: center;
-        }
-        #setup-layer input { 
-            width: 80%; padding: 15px; font-size: 20px; text-align: center; 
-            border-radius: 10px; border: 2px solid var(--gold); background: #222; color: #fff; margin-bottom: 20px;
-        }
-        #setup-layer button { 
-            padding: 15px 40px; background: var(--gold); border: none; border-radius: 10px; font-weight: bold; font-size: 18px;
-        }
+#love{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%) scale(0);
+    color:#ff3366;
+    font-size:90px;
+    font-weight:bold;
+    text-shadow:
+        0 0 20px #ff3366,
+        0 0 40px #ff3366,
+        0 0 70px #ff3366;
+    opacity:0;
+    transition:all 2s;
+    text-align:center;
+    z-index:10;
+}
 
-        /* Bố cục của ông (Giữ nguyên tọa độ) */
-        .container { display: grid; grid-template-columns: 1fr 120px 1fr; height: 100vh; visibility: hidden; }
-        .side-col { position: relative; }
-        .center-col { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px; }
+.show{
+    opacity:1!important;
+    transform:translate(-50%,-50%) scale(1)!important;
+}
 
-        .btn-circle {
-            border: none; border-radius: 50%; color: #fff; font-weight: 900;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.7); position: absolute;
-            transition: transform 0.05s;
-        }
-        /* Hiệu ứng nháy khi bấm cho ông biết nút có ăn hay không */
-        .btn-circle:active { background: #fff !important; color: #000 !important; transform: scale(0.9); }
-
-        .pos-4, .pos-6 { top: 5vh; width: 75px; height: 75px; background: #1a1a1a; border: 2.5px solid; }
-        .pos-3 { top: 28vh; width: 110px; height: 110px; font-size: 2.5rem; }
-        .pos-2 { top: 52vh; width: 115px; height: 115px; font-size: 2.8rem; }
-        .pos-1 { bottom: 10vh; width: 80px; height: 80px; font-size: 1.6rem; }
-
-        .red-side .pos-4 { left: 20%; border-color: var(--red); color: var(--red); }
-        .red-side .pos-6 { left: 55%; border-color: var(--red); color: var(--red); }
-        .red-side .pos-3 { left: 35%; background: var(--red); }
-        .red-side .pos-2 { left: 10%; background: var(--red); }
-        .red-side .pos-1 { right: 20%; background: var(--red); }
-
-        .blue-side .pos-4 { right: 20%; border-color: var(--blue); color: var(--blue); }
-        .blue-side .pos-6 { right: 55%; border-color: var(--blue); color: var(--blue); }
-        .blue-side .pos-3 { right: 35%; background: var(--blue); }
-        .blue-side .pos-2 { right: 10%; background: var(--blue); }
-        .blue-side .pos-1 { left: 20%; background: var(--blue); }
-
-        .btn-ctrl { width: 95%; border: none; border-radius: 10px; font-weight: bold; }
-        .start { height: 90px; background: #28a745; font-size: 1.1rem; color: #fff; }
-        .fault { height: 45px; border: 1.5px solid #444; background: #111; font-size: 0.7rem; }
-        .f-red { color: var(--red); border-color: var(--red); }
-        .f-blue { color: var(--blue); border-color: var(--blue); }
-    </style>
+.small{
+    display:block;
+    font-size:35px;
+    margin-top:25px;
+    color:white;
+}
+</style>
 </head>
 <body>
 
-<div id="setup-layer">
-    <h2 style="color:var(--gold)">KẾT NỐI BẢNG ĐIỂM</h2>
-    <input type="text" id="idVao" placeholder="Nhập mã ID từ máy tính...">
-    <button onclick="start()">KẾT NỐI</button>
+<canvas id="c"></canvas>
+
+<div id="love">
+I LOVE YOU ❤️
+<span class="small">Will you be mine?</span>
 </div>
 
-<div class="container" id="main-ui">
-    <div class="side-col red-side">
-        <button class="btn-circle pos-4" onclick="sd('r',4)">+4</button>
-        <button class="btn-circle pos-6" onclick="sd('r',6)">+6</button>
-        <button class="btn-circle pos-3" onclick="sd('r',3)">+3</button>
-        <button class="btn-circle pos-2" onclick="sd('r',2)">+2</button>
-        <button class="btn-circle pos-1" onclick="sd('r',1)">+1</button>
-    </div>
-    <div class="center-col">
-        <button class="btn-ctrl start" id="btnS" onclick="st()">BẮT ĐẦU</button>
-        <button class="btn-ctrl fault f-red" onclick="sf('r')">LỖI ĐỎ</button>
-        <button class="btn-ctrl fault f-blue" onclick="sf('b')">LỖI XANH</button>
-    </div>
-    <div class="side-col blue-side">
-        <button class="btn-circle pos-4" onclick="sd('b',4)">+4</button>
-        <button class="btn-circle pos-6" onclick="sd('b',6)">+6</button>
-        <button class="btn-circle pos-3" onclick="sd('b',3)">+3</button>
-        <button class="btn-circle pos-2" onclick="sd('b',2)">+2</button>
-        <button class="btn-circle pos-1" onclick="sd('b',1)">+1</button>
-    </div>
-</div>
-
-<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <script>
-    const peer = new Peer();
-    let conn;
 
-    function start() {
-        const id = document.getElementById('idVao').value.trim();
-        if(!id) return alert("Chưa nhập mã!");
-        
-        conn = peer.connect(id, { reliable: true });
-        conn.on('open', () => {
-            document.getElementById('setup-layer').style.display = 'none';
-            document.getElementById('main-ui').style.visibility = 'visible';
-            alert("ĐÃ KẾT NỐI!");
-        });
-        conn.on('error', (err) => alert("Lỗi: Không tìm thấy máy tính!"));
+const canvas=document.getElementById("c");
+const ctx=canvas.getContext("2d");
+
+canvas.width=innerWidth;
+canvas.height=innerHeight;
+
+const letters="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*(){}[]<>?/あいうえおアイウエオ";
+const size=18;
+
+const columns=Math.floor(canvas.width/size);
+const drops=[];
+
+for(let i=0;i<columns;i++)
+    drops[i]=1;
+
+function draw(){
+
+    ctx.fillStyle="rgba(0,0,0,0.05)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    ctx.fillStyle="#00ff00";
+    ctx.font=size+"px monospace";
+
+    for(let i=0;i<drops.length;i++){
+
+        const text=letters[Math.floor(Math.random()*letters.length)];
+
+        ctx.fillText(text,i*size,drops[i]*size);
+
+        if(drops[i]*size>canvas.height && Math.random()>0.975)
+            drops[i]=0;
+
+        drops[i]++;
     }
 
-    function sd(s, p) {
-        if(conn && conn.open) conn.send({ type: 'score', side: s, pts: p });
-    }
+}
 
-    function st() {
-        if(conn && conn.open) conn.send({ type: 'control', action: 'toggle' });
-        let b = document.getElementById('btnS');
-        b.innerText = b.innerText === "BẮT ĐẦU" ? "DỪNG" : "BẮT ĐẦU";
-        b.style.background = b.innerText === "DỪNG" ? "orange" : "#28a745";
-    }
+const rain=setInterval(draw,35);
 
-    function sf(s) {
-        if(conn && conn.open) conn.send({ type: 'fault', side: s });
-    }
+// Sau 5 giây hiện chữ
+setTimeout(()=>{
+
+    // Làm tối màn hình dần
+    let alpha=0;
+
+    const fade=setInterval(()=>{
+
+        alpha+=0.02;
+
+        ctx.fillStyle=`rgba(0,0,0,${alpha})`;
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+
+        if(alpha>=1){
+            clearInterval(fade);
+            clearInterval(rain);
+
+            document.getElementById("love").classList.add("show");
+
+        }
+
+    },30);
+
+},5000);
+
+window.onresize=()=>{
+    canvas.width=innerWidth;
+    canvas.height=innerHeight;
+};
+
 </script>
+
 </body>
 </html>
-
